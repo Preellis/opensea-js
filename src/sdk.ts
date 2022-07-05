@@ -1,4 +1,4 @@
-import { Seaport } from "@opensea/seaport-js";
+import { Seaport } from "https://github.com/Preellis/opensea-js";
 import { CROSS_CHAIN_SEAPORT_ADDRESS } from "@opensea/seaport-js/lib/constants";
 import {
   ConsiderationInputItem,
