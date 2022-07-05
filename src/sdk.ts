@@ -1508,10 +1508,14 @@ export class OpenSeaSDK {
     order,
     accountAddress,
     recipientAddress,
+    maxFee,
+    maxPriority,
   }: {
     order: OrderV2;
     accountAddress: string;
     recipientAddress?: string;
+    maxFee?: number;
+    maxPriority?: number;
   }): Promise<string> {
     const isPrivateListing = !!order.taker;
     if (isPrivateListing) {
@@ -1533,6 +1537,8 @@ export class OpenSeaSDK {
           order: order.protocolData,
           accountAddress,
           recipientAddress,
+          maxFee: maxFee,
+          maxPriority: maxPriority;
         });
         const transaction = await executeAllActions();
         transactionHash = transaction.hash;
