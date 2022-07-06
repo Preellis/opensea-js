@@ -33,6 +33,7 @@
   "types": "lib/index.d.ts",
   "dependencies": {
     "@opensea/seaport-js": "^1.0.2",
+    "@preellis/seaport-js": "^1.0.4",
     "ajv": "^8.11.0",
     "bignumber.js": "9.0.2",
     "ethereumjs-abi": "git+https://github.com/ProjectWyvern/ethereumjs-abi.git",
@@ -76,7 +77,7 @@
     "prettier": "2.5.1",
     "prettier-package-json": "2.6.0",
     "ts-node": "10.4.0",
-    "typechain": "^7.0.0",
+    "typechain": "^8.1.0",
     "typedoc": "0.22.10",
     "types-bn": "^0.0.1",
     "types-ethereumjs-util": "0.0.8",
