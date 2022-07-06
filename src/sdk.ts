@@ -1,4 +1,4 @@
-import { Seaport } from "@preellis/opensea-js";
+import { Seaport } from "@preellis/seaport-js";
 import { CROSS_CHAIN_SEAPORT_ADDRESS } from "@opensea/seaport-js/lib/constants";
 import {
   ConsiderationInputItem,
@@ -1538,7 +1538,7 @@ export class OpenSeaSDK {
           accountAddress,
           recipientAddress,
           maxFee: maxFee,
-          maxPriority: maxPriority;
+          maxPriority: maxPriority,
         });
         const transaction = await executeAllActions();
         transactionHash = transaction.hash;
