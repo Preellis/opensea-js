@@ -1529,10 +1529,11 @@ export class OpenSeaSDK {
         accountAddress,
       });
     }
-
+    console.log("break1")
     let transactionHash: string;
     switch (order.protocolAddress) {
       case CROSS_CHAIN_SEAPORT_ADDRESS: {
+        console.log("break2")
         const { executeAllActions } = await this.seaport.fulfillOrder({
           order: order.protocolData,
           accountAddress,
@@ -1542,17 +1543,19 @@ export class OpenSeaSDK {
         });
         const transaction = await executeAllActions();
         transactionHash = transaction.hash;
+        console.log("break3")
         break;
       }
       default:
         throw new Error("Unsupported protocol");
     }
-
+    console.log("break4")
     await this._confirmTransaction(
       transactionHash,
       EventType.MatchOrders,
       "Fulfilling order"
     );
+    console.log("break5")
     return transactionHash;
   }
 
