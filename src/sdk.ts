@@ -1534,6 +1534,8 @@ export class OpenSeaSDK {
     switch (order.protocolAddress) {
       case CROSS_CHAIN_SEAPORT_ADDRESS: {
         console.log("break2")
+        console.log(maxFee)
+        console.log(maxPriority)
         const { executeAllActions } = await this.seaport.fulfillOrder({
           order: order.protocolData,
           accountAddress,
@@ -1541,6 +1543,7 @@ export class OpenSeaSDK {
           maxFee: maxFee,
           maxPriority: maxPriority,
         });
+        console.log("break2.5")
         const transaction = await executeAllActions();
         transactionHash = transaction.hash;
         console.log("break3")
