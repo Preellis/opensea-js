@@ -1,6 +1,6 @@
 {
   "name": "@preellis/opensea-js",
-  "version": "4.0.9",
+  "version": "4.0.12",
   "description": "JavaScript SDK for the OpenSea marketplace. Let users buy or sell crypto collectibles and other cryptogoods, all on your own site!",
   "license": "MIT",
   "author": "OpenSea Developers",
@@ -33,7 +33,7 @@
   "types": "lib/index.d.ts",
   "dependencies": {
     "@opensea/seaport-js": "^1.0.2",
-    "@preellis/seaport-js": "^1.0.6",
+    "@preellis/seaport-js": "^1.0.8",
     "ajv": "^8.11.0",
     "bignumber.js": "9.0.2",
     "ethereumjs-abi": "git+https://github.com/ProjectWyvern/ethereumjs-abi.git",

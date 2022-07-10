@@ -1610,7 +1610,8 @@ export class OpenSeaSDK {
     return transactionHash;
   }
 
-  private async cancelSeaportOrders({
+  //orders: [order.protocolData.parameters, ...]
+  public async cancelSeaportOrders({
     orders,
     accountAddress,
   }: {
