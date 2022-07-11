@@ -1,4 +1,5 @@
 import { Seaport } from "@preellis/seaport-js";
+import { OrderWithCounter } from "@prellis/seaport-js/lib/types";
 import { CROSS_CHAIN_SEAPORT_ADDRESS } from "@opensea/seaport-js/lib/constants";
 import {
   ConsiderationInputItem,
@@ -86,7 +87,7 @@ import {
   getPrivateListingConsiderations,
   getPrivateListingFulfillments,
 } from "./orders/privateListings";
-import { OrderV2 } from "./orders/types";
+import { OrderV2, ProtocolData } from "./orders/types";
 import { CheezeWizardsBasicTournamentAbi } from "./typechain/contracts/CheezeWizardsBasicTournamentAbi";
 import { DecentralandEstatesAbi } from "./typechain/contracts/DecentralandEstatesAbi";
 import { ERC1155Abi } from "./typechain/contracts/ERC1155Abi";
@@ -158,6 +159,7 @@ import {
   getAssetItemType,
   BigNumberInput,
 } from "./utils/utils";
+import { forEach } from "lodash";
 
 export class OpenSeaSDK {
   // Web3 instance to use
@@ -1560,6 +1562,43 @@ export class OpenSeaSDK {
     );
     console.log("break5")
     return transactionHash;
+  }
+  /**
+   * Fullfill or "take" orders for assets, either a buy or sell order
+   * @param options fullfillment options
+   * @param options.orders The orders to fulfill, a.k.a. "take"
+   * @param options.accountAddress The taker's wallet address
+   * @param options.recipientAddress The optional address to receive the order's item(s) or curriencies. If not specified, defaults to accountAddress
+   * @returns Transaction hash for fulfilling the order
+   */
+   public async fulfillOrders({
+    orders,
+    accountAddress,
+    recipientAddress,
+  }: {
+    orders: OrderV2[];
+    accountAddress: string;
+    recipientAddress?: string;
+  }): Promise<string> {
+    orders.forEach(order => {
+      const isPrivateListing = !!order.taker
+      if (isPrivateListing) {
+        throw new Error(
+          "Private listings not supported"
+        );
+      }
+    })
+    const ordersProtocolData: {order: OrderWithCounter}[] = []
+    orders.forEach(order=>{
+      ordersProtocolData.push({order: order.protocolData})
+    })
+    const { executeAllActions } = await this.seaport.fulfillOrders({
+      fulfillOrderDetails: ordersProtocolData,
+      accountAddress,
+      recipientAddress,
+    });
+    const transaction = await executeAllActions();
+    return transaction.hash
   }
 
   /**
