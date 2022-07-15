@@ -1,5 +1,5 @@
 {
-  "name": "@preellis/opensea-js",
+  "name": "@nitro-automation/opensea",
   "version": "4.0.13",
   "description": "JavaScript SDK for the OpenSea marketplace. Let users buy or sell crypto collectibles and other cryptogoods, all on your own site!",
   "license": "MIT",
@@ -16,6 +16,9 @@
   "files": [
     "lib"
   ],
+  "directories": {
+    "example": "examples"
+  },
   "scripts": {
     "abi-type-gen": "yarn run typechain --target=web3-v1 src/abi/*.json --out-dir=src/typechain/contracts",
     "build": "yarn abi-type-gen && tsc -p tsconfig.build.json",
