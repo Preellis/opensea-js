@@ -17,6 +17,7 @@ import {
   OrdersQueryOptions,
   OrderV2,
   ProtocolData,
+  QueryCursors,
 } from "./orders/types";
 import {
   serializeOrdersQueryOptions,
@@ -128,7 +129,11 @@ export class OpenSeaAPI {
     orderDirection = "desc",
     orderBy = "created_date",
     ...restOptions
-  }: Omit<OrdersQueryOptions, "limit">): Promise<string> {
+  }: Omit<OrdersQueryOptions, "limit">): Promise<
+    QueryCursors & {
+      orders: OrderV2[];
+    }
+  > {
     const response = await this.getBypass(
       getOrdersAPIPath(this.networkName, protocol, side),
       serializeOrdersQueryOptions({

@@ -10,13 +10,13 @@ const openseaSDK = new OpenSeaSDK(provider, {
 });
 
 const test = async () => {
-  const { orders, count } = await openseaSDK.api.getOrders({
+  const { orders } = await openseaSDK.api.getOrders({
     assetContractAddress: "0x82f8b200758d2a5cd5d584e8ee06e4182526b0ae",
     tokenId: 1,
     side: "bid",
   });
 
-  console.log(orders, count);
+  console.log(orders);
 
   const res = await openseaSDK.api.getOrder({
     assetContractAddress: "0x82f8b200758d2a5cd5d584e8ee06e4182526b0ae",
@@ -24,7 +24,7 @@ const test = async () => {
     side: "bid",
   });
 
-  console.log(res);
+  console.log(res.currentPrice);
 };
 
 setInterval(async () => {
