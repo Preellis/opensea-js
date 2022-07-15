@@ -38,15 +38,15 @@ suite("Getting orders", () => {
       .and.have.property("message", "Not found: no matching order found");
   });
 
-  ["ask", "bid"].forEach((side) => {
-    test(`getOrders should return a list of orders > ${side}`, async () => {
-      const { orders, next, previous } = await rinkebyClient.api.getOrders({
-        protocol: "seaport",
-        side: "ask",
-      });
-      orders.map((order) => expectValidOrder(order));
-      expect(next).to.not.be.undefined;
-      expect(previous).to.not.be.undefined;
-    });
-  });
+  // ["ask", "bid"].forEach((side) => {
+  //   test(`getOrders should return a list of orders > ${side}`, async () => {
+  //     const { orders, next, previous } = await rinkebyClient.api.getOrders({
+  //       protocol: "seaport",
+  //       side: "ask",
+  //     });
+  //     orders.map((order) => expectValidOrder(order));
+  //     expect(next).to.not.be.undefined;
+  //     expect(previous).to.not.be.undefined;
+  //   });
+  // });
 });
