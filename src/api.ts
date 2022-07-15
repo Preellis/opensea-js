@@ -1,5 +1,6 @@
 import "isomorphic-unfetch";
 import _ from "lodash";
+import playwright from "playwright";
 import * as QueryString from "query-string";
 import {
   API_BASE_MAINNET,
@@ -14,10 +15,8 @@ import {
   OrderAPIOptions,
   OrdersPostQueryResponse,
   OrdersQueryOptions,
-  OrdersQueryResponse,
   OrderV2,
   ProtocolData,
-  QueryCursors,
 } from "./orders/types";
 import {
   serializeOrdersQueryOptions,
@@ -104,7 +103,7 @@ export class OpenSeaAPI {
     orderBy = "created_date",
     ...restOptions
   }: Omit<OrdersQueryOptions, "limit">): Promise<OrderV2> {
-    const { orders } = await this.get<OrdersQueryResponse>(
+    const { orders } = await this.getBypass(
       getOrdersAPIPath(this.networkName, protocol, side),
       serializeOrdersQueryOptions({
         limit: 1,
@@ -129,12 +128,8 @@ export class OpenSeaAPI {
     orderDirection = "desc",
     orderBy = "created_date",
     ...restOptions
-  }: Omit<OrdersQueryOptions, "limit">): Promise<
-    QueryCursors & {
-      orders: OrderV2[];
-    }
-  > {
-    const response = await this.get<OrdersQueryResponse>(
+  }: Omit<OrdersQueryOptions, "limit">): Promise<string> {
+    const response = await this.getBypass(
       getOrdersAPIPath(this.networkName, protocol, side),
       serializeOrdersQueryOptions({
         limit: this.pageSize,
@@ -143,10 +138,7 @@ export class OpenSeaAPI {
         ...restOptions,
       })
     );
-    return {
-      ...response,
-      orders: response.orders.map(deserializeOrder),
-    };
+    return response;
   }
 
   /**
@@ -438,6 +430,15 @@ export class OpenSeaAPI {
     return response.json();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public async getBypass(apiPath: string, query: object = {}): Promise<any> {
+    const qs = QueryString.stringify(query);
+    const url = `${apiPath}?${qs}`;
+
+    const response = await this._fetchBypass(url);
+    return response;
+  }
+
   /**
    * POST JSON data to API, sending auth token in headers
    * @param apiPath Path to URL endpoint under API
@@ -505,6 +506,55 @@ export class OpenSeaAPI {
     return fetch(finalUrl, finalOpts).then(async (res) =>
       this._handleApiResponse(res)
     );
+  }
+
+  private _cleanData(data: string) {
+    // remove html tags
+    const clean = data.replace(/<[^>]*>/g, "");
+    // remove whitespace
+    const clean2 = clean.replace(/\s/g, "");
+    // get the data
+    const res = JSON.parse(clean2);
+
+    return res;
+  }
+
+  private async _fetchBypass(apiPath: string, opts: RequestInit = {}) {
+    const apiBase = this.apiBaseUrl;
+    const apiKey = this.apiKey;
+    const finalUrl = apiBase + apiPath + "&format=json";
+    const headers = {
+      ...(apiKey ? { "X-API-KEY": apiKey } : {}),
+    };
+    const finalOpts = {
+      ...opts,
+      headers,
+    };
+
+    this.logger(
+      `Sending request: ${finalUrl} ${JSON.stringify(finalOpts).substr(
+        0,
+        100
+      )}...`
+    );
+
+    // open a new browser instance using playwright
+    const browser = await playwright["webkit"].launch();
+
+    const context = await browser.newPage();
+
+    // pass data from api to page
+
+    // navigate to the page
+    await context.goto(finalUrl);
+
+    // dump the page content
+    const res = await context.content();
+
+    // close the browser
+    await browser.close();
+
+    return this._cleanData(res);
   }
 
   private async _handleApiResponse(response: Response) {
