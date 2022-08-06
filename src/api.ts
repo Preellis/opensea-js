@@ -143,7 +143,10 @@ export class OpenSeaAPI {
         ...restOptions,
       })
     );
-    return response;
+    return {
+      ...response,
+      orders: response.orders.map(deserializeOrder),
+    }
   }
 
   /**
