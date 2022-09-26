@@ -1,5 +1,5 @@
-import { Seaport } from "@preellis/seaport-js";
-import { OrderWithCounter } from "@preellis/seaport-js/lib/types";
+import { Seaport } from "@nitro-automation/seaport-js";
+import { OrderWithCounter } from "@nitro-automation/seaport-js/lib/types";
 import { CROSS_CHAIN_SEAPORT_ADDRESS } from "@opensea/seaport-js/lib/constants";
 import {
   ConsiderationInputItem,
