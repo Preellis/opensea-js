@@ -5,6 +5,8 @@ import {
   ConsiderationInputItem,
   CreateInputItem,
   OrderComponents,
+  BasicErc721Item,
+  Erc721ItemWithCriteria,
 } from "@opensea/seaport-js/lib/types";
 import { BigNumber } from "bignumber.js";
 import { Web3JsProvider } from "ethereum-types";
@@ -12,6 +14,7 @@ import { isValidAddress } from "ethereumjs-util";
 import { providers } from "ethers";
 import { EventEmitter, EventSubscription } from "fbemitter";
 import * as _ from "lodash";
+import { forEach } from "lodash";
 import Web3 from "web3";
 import { WyvernProtocol } from "wyvern-js";
 import * as WyvernSchemas from "wyvern-schemas";
@@ -140,7 +143,6 @@ import {
   getAddressAfterRemappingSharedStorefrontAddressToLazyMintAdapterAddress,
   feesToBasisPoints,
 } from "./utils/utils";
-import { forEach } from "lodash";
 
 export class OpenSeaSDK {
   // Web3 instance to use
@@ -855,7 +857,7 @@ export class OpenSeaSDK {
    * @param options.expirationTime Expiration time for the order, in seconds
    * @param options.paymentTokenAddress Optional address for using an ERC-20 token in the order. If unspecified, defaults to WETH
    */
-   public async createBuyOrders({
+  public async createBuyOrders({
     asset,
     accountAddress,
     startAmount,
@@ -875,6 +877,8 @@ export class OpenSeaSDK {
     if (!asset.tokenId) {
       throw new Error("Asset must have a tokenId");
     }
+
+    console.log("break1");
     paymentTokenAddress =
       paymentTokenAddress ?? WETH_ADDRESS_BY_NETWORK[this._networkName];
 
@@ -883,24 +887,28 @@ export class OpenSeaSDK {
       [openseaAsset],
       [makeBigNumber(quantity)]
     );
-
+    console.log("break2");
     const { basePrice } = await this._getPriceParameters(
       OrderSide.Buy,
       paymentTokenAddress,
       makeBigNumber(expirationTime ?? getMaxOrderExpirationTimestamp()),
       makeBigNumber(startAmount)
     );
-
-    const { openseaSellerFee, collectionSellerFee } = await this.getFees({
+    console.log("break3");
+    const { openseaSellerFee, collectionSellerFees } = await this.getFees({
       openseaAsset,
       paymentTokenAddress,
       startAmount: basePrice,
     });
-    const considerationFeeItems = [
-      openseaSellerFee,
-      collectionSellerFee,
-    ].filter((item): item is ConsiderationInputItem => item !== undefined);
-    considerationAssetItems[0].identifiers = tokenIds;
+    const considerationFeeItems = [openseaSellerFee, ...collectionSellerFees];
+    console.log("break4");
+    const assetItem: Erc721ItemWithCriteria = {
+      itemType: (<BasicErc721Item>considerationAssetItems[0]).itemType,
+      token: String(considerationAssetItems[0].token),
+      identifiers: tokenIds,
+    };
+    considerationAssetItems[0] = assetItem;
+    console.log("break5");
     const { executeAllActions } = await this.seaport.createOrder(
       {
         offer: [
@@ -914,13 +922,16 @@ export class OpenSeaSDK {
           expirationTime?.toString() ??
           getMaxOrderExpirationTimestamp().toString(),
         zone: DEFAULT_ZONE_BY_NETWORK[this._networkName],
+        domain: "",
+        salt: "",
         restrictedByZone: true,
         allowPartialFills: true,
       },
       accountAddress
     );
+    console.log("break6");
     const order = await executeAllActions();
-
+    console.log("break7");
     return this.api.postOrder(order, { protocol: "seaport", side: "bid" });
   }
 
@@ -1178,36 +1189,36 @@ export class OpenSeaSDK {
         accountAddress,
       });
     }
-    console.log("break1")
+    console.log("break1");
     let transactionHash: string;
     switch (order.protocolAddress) {
       case CROSS_CHAIN_SEAPORT_ADDRESS: {
-        console.log("break2")
-        console.log(maxFee)
-        console.log(maxPriority)
+        console.log("break2");
+        console.log(maxFee);
+        console.log(maxPriority);
         const { executeAllActions } = await this.seaport.fulfillOrder({
           order: order.protocolData,
           accountAddress,
           recipientAddress,
-          maxFee: maxFee,
-          maxPriority: maxPriority,
+          maxFee,
+          maxPriority,
         });
-        console.log("break2.5")
+        console.log("break2.5");
         const transaction = await executeAllActions();
         transactionHash = transaction.hash;
-        console.log("break3")
+        console.log("break3");
         break;
       }
       default:
         throw new Error("Unsupported protocol");
     }
-    console.log("break4")
+    console.log("break4");
     await this._confirmTransaction(
       transactionHash,
       EventType.MatchOrders,
       "Fulfilling order"
     );
-    console.log("break5")
+    console.log("break5");
     return transactionHash;
   }
   /**
@@ -1218,7 +1229,7 @@ export class OpenSeaSDK {
    * @param options.recipientAddress The optional address to receive the order's item(s) or curriencies. If not specified, defaults to accountAddress
    * @returns Transaction hash for fulfilling the order
    */
-   public async fulfillOrders({
+  public async fulfillOrders({
     orders,
     accountAddress,
     recipientAddress,
@@ -1227,25 +1238,23 @@ export class OpenSeaSDK {
     accountAddress: string;
     recipientAddress?: string;
   }): Promise<string> {
-    orders.forEach(order => {
-      const isPrivateListing = !!order.taker
+    orders.forEach((order) => {
+      const isPrivateListing = !!order.taker;
       if (isPrivateListing) {
-        throw new Error(
-          "Private listings not supported"
-        );
+        throw new Error("Private listings not supported");
       }
-    })
-    const ordersProtocolData: {order: OrderWithCounter}[] = []
-    orders.forEach(order=>{
-      ordersProtocolData.push({order: order.protocolData})
-    })
+    });
+    const ordersProtocolData: { order: OrderWithCounter }[] = [];
+    orders.forEach((order) => {
+      ordersProtocolData.push({ order: order.protocolData });
+    });
     const { executeAllActions } = await this.seaport.fulfillOrders({
       fulfillOrderDetails: ordersProtocolData,
       accountAddress,
       recipientAddress,
     });
     const transaction = await executeAllActions();
-    return transaction.hash
+    return transaction.hash;
   }
 
   /**
