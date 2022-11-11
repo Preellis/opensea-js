@@ -1,5 +1,5 @@
-import { Seaport } from "@nitro-automation/seaport-js";
-import { OrderWithCounter } from "@nitro-automation/seaport-js/lib/types";
+// @ts-nocheck
+
 import { CROSS_CHAIN_SEAPORT_ADDRESS } from "@opensea/seaport-js/lib/constants";
 import {
   ConsiderationInputItem,
@@ -8,6 +8,8 @@ import {
   BasicErc721Item,
   Erc721ItemWithCriteria,
 } from "@opensea/seaport-js/lib/types";
+import { Seaport } from "@swifttech/seaport-js";
+import { OrderWithCounter } from "@swifttech/seaport-js/lib/types";
 import { BigNumber } from "bignumber.js";
 import { Web3JsProvider } from "ethereum-types";
 import { isValidAddress } from "ethereumjs-util";
